@@ -3100,16 +3100,16 @@
           if (conf['Quote Inline']) {
             openAll = $.el('a', {
               href: "#" + qid,
+              className: "openall",
               textContent: "[ + ]",
               postid: qid
             });
-            $.on(openAll, 'click', QuoteInline.openAll);
             closeAll = $.el('a', {
               href: "#" + qid,
+              className: "closeall",
               textContent: "[ - ]",
               postid: qid
             });
-            $.on(closeAll, 'click', QuoteInline.closeAll);
             $.add(container, [$.tn(' '), openAll, $.tn(' '), closeAll]);
           }
           $.add(container, [$.tn(' '), link]);
@@ -3117,6 +3117,14 @@
           $.after(root, container);
         } else {
           $.add(container, [$.tn(' '), link]);
+        }
+      }
+      if (conf['Quote Inline']) {
+        if (openAll = $(".openall", container)) {
+          $.on(openAll, 'click', QuoteInline.openAll);
+        }
+        if (closeAll = $(".closeall", container)) {
+          $.on(closeAll, 'click', QuoteInline.closeAll);
         }
       }
     }
@@ -3127,7 +3135,7 @@
       return g.callbacks.push(this.node);
     },
     node: function(post) {
-      var quote, _i, _j, _len, _len2, _ref, _ref2;
+      var closeAll, openAll, quote, _i, _j, _len, _len2, _ref, _ref2;
       _ref = post.quotes;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         quote = _ref[_i];
@@ -3139,6 +3147,12 @@
       for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
         quote = _ref2[_j];
         $.on(quote, 'click', QuoteInline.toggle);
+      }
+      if (openAll = $(".openall", post.el)) {
+        $.on(openAll, 'click', QuoteInline.openAll);
+      }
+      if (closeAll = $(".closeall", post.el)) {
+        $.on(closeAll, 'click', QuoteInline.closeAll);
       }
     },
     toggle: function(e) {
