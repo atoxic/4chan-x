@@ -2577,6 +2577,18 @@ QuoteBacklink =
         link.setAttribute 'onclick', "replyhl('#{post.id}');"
       unless (container = $ '.container', el) and container.parentNode is el
         container = $.el 'span', className: 'container'
+        if conf['Quote Inline']
+          openAll = $.el 'a', 
+                  href: "##{qid}"
+                  textContent: "[ + ]"
+                  postid: qid
+          $.on openAll, 'click', QuoteInline.openAll
+          closeAll = $.el 'a', 
+                  href: "##{qid}"
+                  textContent: "[ - ]"
+                  postid: qid
+          $.on closeAll, 'click', QuoteInline.closeAll
+          $.add container, [$.tn(' '), openAll, $.tn(' '), closeAll]
         $.add container, [$.tn(' '), link]
         root = $('.reportbutton', el) or $('span[id]', el)
         $.after root, container
@@ -2606,6 +2618,19 @@ QuoteInline =
       QuoteInline.add @, id
     @classList.toggle 'inlined'
 
+  openAll: (e) ->
+    # Reverse to keep the inlines in ascending order, since add pushes them onto the "inline stack",
+    # though this wouldn't keep them in order if one of them was already open
+    for q in ($$ '.backlink', @parentNode).reverse()
+      unless /\binlined\b/.test q.className
+        QuoteInline.add(q, q.hash[1..])
+        q.classList.toggle 'inlined'
+  closeAll: (e) ->
+    for q in $$ '.backlink', @parentNode
+      if /\binlined\b/.test q.className
+        QuoteInline.rm(q, q.hash[1..])
+        q.classList.toggle 'inlined'
+      
   add: (q, id) ->
     root = if q.parentNode.nodeName is 'FONT' then q.parentNode else if q.nextSibling then q.nextSibling else q
     if el = $.id id

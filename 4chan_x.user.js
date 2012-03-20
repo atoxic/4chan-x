@@ -3069,7 +3069,7 @@
       return g.callbacks.push(this.node);
     },
     node: function(post) {
-      var a, container, el, link, qid, quote, quotes, root, _i, _len, _ref;
+      var a, closeAll, container, el, link, openAll, qid, quote, quotes, root, _i, _len, _ref;
       if (post.isInlined) return;
       quotes = {};
       _ref = post.quotes;
@@ -3097,6 +3097,21 @@
           container = $.el('span', {
             className: 'container'
           });
+          if (conf['Quote Inline']) {
+            openAll = $.el('a', {
+              href: "#" + qid,
+              textContent: "[ + ]",
+              postid: qid
+            });
+            $.on(openAll, 'click', QuoteInline.openAll);
+            closeAll = $.el('a', {
+              href: "#" + qid,
+              textContent: "[ - ]",
+              postid: qid
+            });
+            $.on(closeAll, 'click', QuoteInline.closeAll);
+            $.add(container, [$.tn(' '), openAll, $.tn(' '), closeAll]);
+          }
           $.add(container, [$.tn(' '), link]);
           root = $('.reportbutton', el) || $('span[id]', el);
           $.after(root, container);
@@ -3140,6 +3155,36 @@
         QuoteInline.add(this, id);
       }
       return this.classList.toggle('inlined');
+    },
+    openAll: function(e) {
+      var q, _i, _len, _ref, _results;
+      _ref = ($$('.backlink', this.parentNode)).reverse();
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        q = _ref[_i];
+        if (!/\binlined\b/.test(q.className)) {
+          QuoteInline.add(q, q.hash.slice(1));
+          _results.push(q.classList.toggle('inlined'));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    },
+    closeAll: function(e) {
+      var q, _i, _len, _ref, _results;
+      _ref = $$('.backlink', this.parentNode);
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        q = _ref[_i];
+        if (/\binlined\b/.test(q.className)) {
+          QuoteInline.rm(q, q.hash.slice(1));
+          _results.push(q.classList.toggle('inlined'));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
     },
     add: function(q, id) {
       var el, i, inline, pathname, root, table, threadID;
