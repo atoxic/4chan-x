@@ -2580,20 +2580,25 @@ QuoteBacklink =
         if conf['Quote Inline']
           openAll = $.el 'a', 
                   href: "##{qid}"
+                  className: "openall"
                   textContent: "[ + ]"
                   postid: qid
-          $.on openAll, 'click', QuoteInline.openAll
           closeAll = $.el 'a', 
                   href: "##{qid}"
+                  className: "closeall"
                   textContent: "[ - ]"
                   postid: qid
-          $.on closeAll, 'click', QuoteInline.closeAll
           $.add container, [$.tn(' '), openAll, $.tn(' '), closeAll]
         $.add container, [$.tn(' '), link]
         root = $('.reportbutton', el) or $('span[id]', el)
         $.after root, container
       else
         $.add container, [$.tn(' '), link]
+    if conf['Quote Inline']
+      if openAll = $(".openall", container)
+        $.on openAll, 'click', QuoteInline.openAll
+      if closeAll = $(".closeall", container)
+        $.on closeAll, 'click', QuoteInline.closeAll
     return
 
 QuoteInline =
@@ -2606,6 +2611,10 @@ QuoteInline =
       $.on quote, 'click', QuoteInline.toggle
     for quote in post.backlinks
       $.on quote, 'click', QuoteInline.toggle
+    if openAll = $(".openall", post.el)
+      $.on openAll, 'click', QuoteInline.openAll
+    if closeAll = $(".closeall", post.el)
+      $.on closeAll, 'click', QuoteInline.closeAll
     return
   toggle: (e) ->
     return if e.shiftKey or e.altKey or e.ctrlKey or e.metaKey or e.button isnt 0
