@@ -2577,18 +2577,18 @@ QuoteBacklink =
         link.setAttribute 'onclick', "replyhl('#{post.id}');"
       unless (container = $ '.container', el) and container.parentNode is el
         container = $.el 'span', className: 'container'
-        if conf['Quote Inline']
+        $.add container, [$.tn(' '), link]
+        root = $('.reportbutton', el) or $('span[id]', el)
+        $.after root, container
+      else
+        if conf['Quote Inline'] and ($$ '.backlink', container).length == 1
           toggleAll = $.el 'a', 
                   href: "##{qid}"
                   className: "toggleAll"
                   textContent: "[ + ]"
                   postid: qid
           $.on toggleAll, 'click', QuoteInline.toggleAll
-          $.add container, [$.tn(' '), toggleAll]
-        $.add container, [$.tn(' '), link]
-        root = $('.reportbutton', el) or $('span[id]', el)
-        $.after root, container
-      else
+          $.prepend container, [$.tn(' '), toggleAll]
         $.add container, [$.tn(' '), link]
     return
 

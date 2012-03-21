@@ -3069,7 +3069,7 @@
       return g.callbacks.push(this.node);
     },
     node: function(post) {
-      var a, container, el, link, qid, quote, quotes, root, toggleAll, _i, _len, _ref;
+      var a, container, el, link, qid, quote, quotes, root, toggle, toggleAll, _i, _len, _ref;
       if (post.isInlined) return;
       quotes = {};
       _ref = post.quotes;
@@ -3100,17 +3100,20 @@
           if (conf['Quote Inline']) {
             toggleAll = $.el('a', {
               href: "#" + qid,
-              className: "toggleAll",
+              className: "toggleAll invisible",
               textContent: "[ + ]",
               postid: qid
             });
             $.on(toggleAll, 'click', QuoteInline.toggleAll);
-            $.add(container, [$.tn(' '), toggleAll]);
+            $.prepend(container, [$.tn(' '), toggleAll]);
           }
           $.add(container, [$.tn(' '), link]);
           root = $('.reportbutton', el) || $('span[id]', el);
           $.after(root, container);
         } else {
+          if ((toggle = $('.toggleAll.invisible', container))) {
+            toggle.classList.toggle('invisible');
+          }
           $.add(container, [$.tn(' '), link]);
         }
       }
@@ -4473,6 +4476,9 @@ input ~ a > img[md5] {\
 }\
 .quotelink.forwardlink {\
   color: #2C2C63;\
+}\
+.invisible {\
+  visibility: hidden;\
 }\
 '
   };
