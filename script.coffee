@@ -2621,12 +2621,14 @@ QuoteInline =
     unless /\binlined\b/.test @className
       # Reverse to keep the inlines in ascending order, since add pushes them onto the "inline stack"
       for q in ($$ '.backlink', @parentNode).reverse()
+        qid = q.hash[1..]
+        continue if $.x "ancestor::*[@id='#{qid}']", q
         # Remove and add again if it's already inlined to keep it in order
         if /\binlined\b/.test q.className
-          QuoteInline.rm(q, q.hash[1..])
+          QuoteInline.rm(q, qid)
         else
           q.classList.toggle 'inlined'
-        QuoteInline.add(q, q.hash[1..])
+        QuoteInline.add(q, qid)
       @textContent = '[ - ]'
     else
       for q in $$ '.backlink', @parentNode

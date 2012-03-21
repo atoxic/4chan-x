@@ -3155,18 +3155,20 @@
       return this.classList.toggle('inlined');
     },
     toggleAll: function(e) {
-      var q, _i, _j, _len, _len2, _ref, _ref2;
+      var q, qid, _i, _j, _len, _len2, _ref, _ref2;
       e.preventDefault();
       if (!/\binlined\b/.test(this.className)) {
         _ref = ($$('.backlink', this.parentNode)).reverse();
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           q = _ref[_i];
+          qid = q.hash.slice(1);
+          if ($.x("ancestor::*[@id='" + qid + "']", q)) continue;
           if (/\binlined\b/.test(q.className)) {
-            QuoteInline.rm(q, q.hash.slice(1));
+            QuoteInline.rm(q, qid);
           } else {
             q.classList.toggle('inlined');
           }
-          QuoteInline.add(q, q.hash.slice(1));
+          QuoteInline.add(q, qid);
         }
         this.textContent = '[ - ]';
       } else {
