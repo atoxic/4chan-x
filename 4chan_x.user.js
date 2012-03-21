@@ -3069,7 +3069,7 @@
       return g.callbacks.push(this.node);
     },
     node: function(post) {
-      var a, closeAll, container, el, link, openAll, qid, quote, quotes, root, _i, _len, _ref;
+      var a, container, el, link, qid, quote, quotes, root, toggleAll, _i, _len, _ref;
       if (post.isInlined) return;
       quotes = {};
       _ref = post.quotes;
@@ -3098,33 +3098,20 @@
             className: 'container'
           });
           if (conf['Quote Inline']) {
-            openAll = $.el('a', {
+            toggleAll = $.el('a', {
               href: "#" + qid,
-              className: "openall",
+              className: "toggleAll",
               textContent: "[ + ]",
               postid: qid
             });
-            closeAll = $.el('a', {
-              href: "#" + qid,
-              className: "closeall",
-              textContent: "[ - ]",
-              postid: qid
-            });
-            $.add(container, [$.tn(' '), openAll, $.tn(' '), closeAll]);
+            $.on(toggleAll, 'click', QuoteInline.toggleAll);
+            $.add(container, [$.tn(' '), toggleAll]);
           }
           $.add(container, [$.tn(' '), link]);
           root = $('.reportbutton', el) || $('span[id]', el);
           $.after(root, container);
         } else {
           $.add(container, [$.tn(' '), link]);
-        }
-      }
-      if (conf['Quote Inline']) {
-        if (openAll = $(".openall", container)) {
-          $.on(openAll, 'click', QuoteInline.openAll);
-        }
-        if (closeAll = $(".closeall", container)) {
-          $.on(closeAll, 'click', QuoteInline.closeAll);
         }
       }
     }
@@ -3135,7 +3122,7 @@
       return g.callbacks.push(this.node);
     },
     node: function(post) {
-      var closeAll, openAll, quote, _i, _j, _len, _len2, _ref, _ref2;
+      var quote, toggleAll, _i, _j, _len, _len2, _ref, _ref2;
       _ref = post.quotes;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         quote = _ref[_i];
@@ -3148,11 +3135,8 @@
         quote = _ref2[_j];
         $.on(quote, 'click', QuoteInline.toggle);
       }
-      if (openAll = $(".openall", post.el)) {
-        $.on(openAll, 'click', QuoteInline.openAll);
-      }
-      if (closeAll = $(".closeall", post.el)) {
-        $.on(closeAll, 'click', QuoteInline.closeAll);
+      if (toggleAll = $(".toggleAll", post.el)) {
+        $.on(toggleAll, 'click', QuoteInline.toggleAll);
       }
     },
     toggle: function(e) {
@@ -3170,35 +3154,33 @@
       }
       return this.classList.toggle('inlined');
     },
-    openAll: function(e) {
-      var q, _i, _len, _ref, _results;
-      _ref = ($$('.backlink', this.parentNode)).reverse();
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        q = _ref[_i];
-        if (!/\binlined\b/.test(q.className)) {
+    toggleAll: function(e) {
+      var q, _i, _j, _len, _len2, _ref, _ref2;
+      e.preventDefault();
+      if (!/\binlined\b/.test(this.className)) {
+        _ref = ($$('.backlink', this.parentNode)).reverse();
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          q = _ref[_i];
+          if (/\binlined\b/.test(q.className)) {
+            QuoteInline.rm(q, q.hash.slice(1));
+          } else {
+            q.classList.toggle('inlined');
+          }
           QuoteInline.add(q, q.hash.slice(1));
-          _results.push(q.classList.toggle('inlined'));
-        } else {
-          _results.push(void 0);
         }
-      }
-      return _results;
-    },
-    closeAll: function(e) {
-      var q, _i, _len, _ref, _results;
-      _ref = $$('.backlink', this.parentNode);
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        q = _ref[_i];
-        if (/\binlined\b/.test(q.className)) {
-          QuoteInline.rm(q, q.hash.slice(1));
-          _results.push(q.classList.toggle('inlined'));
-        } else {
-          _results.push(void 0);
+        this.textContent = '[ - ]';
+      } else {
+        _ref2 = $$('.backlink', this.parentNode);
+        for (_j = 0, _len2 = _ref2.length; _j < _len2; _j++) {
+          q = _ref2[_j];
+          if (/\binlined\b/.test(q.className)) {
+            QuoteInline.rm(q, q.hash.slice(1));
+            q.classList.toggle('inlined');
+          }
         }
+        this.textContent = '[ + ]';
       }
-      return _results;
+      return this.classList.toggle('inlined');
     },
     add: function(q, id) {
       var el, i, inline, pathname, root, table, threadID;
@@ -4124,7 +4106,7 @@
 label, .favicon {\
   cursor: pointer;\
 }\
-a[href="javascript:;"] {\
+a[href="javascript:;"], .toggleAll {\
   text-decoration: none;\
 }\
 \

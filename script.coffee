@@ -2578,27 +2578,18 @@ QuoteBacklink =
       unless (container = $ '.container', el) and container.parentNode is el
         container = $.el 'span', className: 'container'
         if conf['Quote Inline']
-          openAll = $.el 'a', 
+          toggleAll = $.el 'a', 
                   href: "##{qid}"
-                  className: "openall"
+                  className: "toggleAll"
                   textContent: "[ + ]"
                   postid: qid
-          closeAll = $.el 'a', 
-                  href: "##{qid}"
-                  className: "closeall"
-                  textContent: "[ - ]"
-                  postid: qid
-          $.add container, [$.tn(' '), openAll, $.tn(' '), closeAll]
+          $.on toggleAll, 'click', QuoteInline.toggleAll
+          $.add container, [$.tn(' '), toggleAll]
         $.add container, [$.tn(' '), link]
         root = $('.reportbutton', el) or $('span[id]', el)
         $.after root, container
       else
         $.add container, [$.tn(' '), link]
-    if conf['Quote Inline']
-      if openAll = $(".openall", container)
-        $.on openAll, 'click', QuoteInline.openAll
-      if closeAll = $(".closeall", container)
-        $.on closeAll, 'click', QuoteInline.closeAll
     return
 
 QuoteInline =
@@ -2611,10 +2602,8 @@ QuoteInline =
       $.on quote, 'click', QuoteInline.toggle
     for quote in post.backlinks
       $.on quote, 'click', QuoteInline.toggle
-    if openAll = $(".openall", post.el)
-      $.on openAll, 'click', QuoteInline.openAll
-    if closeAll = $(".closeall", post.el)
-      $.on closeAll, 'click', QuoteInline.closeAll
+    if toggleAll = $(".toggleAll", post.el)
+      $.on toggleAll, 'click', QuoteInline.toggleAll
     return
   toggle: (e) ->
     return if e.shiftKey or e.altKey or e.ctrlKey or e.metaKey or e.button isnt 0
@@ -2627,18 +2616,25 @@ QuoteInline =
       QuoteInline.add @, id
     @classList.toggle 'inlined'
 
-  openAll: (e) ->
-    # Reverse to keep the inlines in ascending order, since add pushes them onto the "inline stack",
-    # though this wouldn't keep them in order if one of them was already open
-    for q in ($$ '.backlink', @parentNode).reverse()
-      unless /\binlined\b/.test q.className
+  toggleAll: (e) ->
+    e.preventDefault()
+    unless /\binlined\b/.test @className
+      # Reverse to keep the inlines in ascending order, since add pushes them onto the "inline stack"
+      for q in ($$ '.backlink', @parentNode).reverse()
+        # Remove and add again if it's already inlined to keep it in order
+        if /\binlined\b/.test q.className
+          QuoteInline.rm(q, q.hash[1..])
+        else
+          q.classList.toggle 'inlined'
         QuoteInline.add(q, q.hash[1..])
-        q.classList.toggle 'inlined'
-  closeAll: (e) ->
-    for q in $$ '.backlink', @parentNode
-      if /\binlined\b/.test q.className
-        QuoteInline.rm(q, q.hash[1..])
-        q.classList.toggle 'inlined'
+      @textContent = '[ - ]'
+    else
+      for q in $$ '.backlink', @parentNode
+        if /\binlined\b/.test q.className
+          QuoteInline.rm(q, q.hash[1..])
+          q.classList.toggle 'inlined'
+      @textContent = '[ + ]'
+    @classList.toggle 'inlined'
       
   add: (q, id) ->
     root = if q.parentNode.nodeName is 'FONT' then q.parentNode else if q.nextSibling then q.nextSibling else q
@@ -3433,7 +3429,7 @@ Main =
 label, .favicon {
   cursor: pointer;
 }
-a[href="javascript:;"] {
+a[href="javascript:;"], .toggleAll {
   text-decoration: none;
 }
 
